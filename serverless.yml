@@ -50,25 +50,21 @@ package:
    - ./**
  include:
    - ./bin/**
-
 functions:
-  getItem:
-    handler: bin/getItem
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
+  getItem:
+    handler: src/handlers/getItem.handler
     events:
       - http:
-          path: utakata/get
+          path: utakata/getItem
           method: get
   setItem:
-    handler: bin/setItem
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
+    handler: src/handlers/setItem.handler
     events:
       - http:
-          path: utakata/set
+          path: utakata/setItem
           method: post
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
