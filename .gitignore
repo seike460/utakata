@@ -1,3 +1,6 @@
+node_modules/*
+bin/*
+.serverless/*
 # Binaries for programs and plugins
 *.exe
 *.dll

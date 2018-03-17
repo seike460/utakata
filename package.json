@@ -1,0 +1,29 @@
+{
+  "name": "utakata",
+  "version": "1.0.0",
+  "description": "todo tool on Serverless",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/seike460/utakata.git"
+  },
+  "keywords": [
+    "todo",
+    "Serverless"
+  ],
+  "author": "seike460",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/seike460/utakata/issues"
+  },
+  "homepage": "https://github.com/seike460/utakata#readme",
+  "dependencies": {
+    "serverless": "^1.26.0"
+  },
+  "scripts": {
+    "sls": "serverless"
+  }
+}
