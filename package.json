@@ -4,7 +4,9 @@
   "description": "todo tool on Serverless",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy": "bash build.sh && npm install && sls deploy -v",
+    "destroy": "sls remove",
+    "info": "sls info"
   },
   "repository": {
     "type": "git",
@@ -21,9 +23,11 @@
   },
   "homepage": "https://github.com/seike460/utakata#readme",
   "dependencies": {
-    "serverless": "^1.26.0"
+    "create-react-app": "^1.5.2",
+    "serverless": "^1.26.1"
   },
-  "scripts": {
-    "sls": "serverless"
+  "devDependencies": {
+    "serverless-localstack": "^0.2.3",
+    "serverless-offline-localstack": "0.0.3"
   }
 }
