@@ -7,6 +7,24 @@ export const addTodo = text => {
   }
 }
 
+export const getTodo = () => {
+  const json = (async () => {
+    try {
+      const url = 'https://thuv9pflq4.execute-api.ap-northeast-1.amazonaws.com/dev/utakata/getItem';
+      const response = await fetch(url);
+      const json = await response.json();
+      console.log(json.origin);
+      return json
+    } catch (error) {
+      console.log(error);
+    }
+  })();
+  return {
+    type: 'GET_TODO',
+    payload: json
+  }
+}
+
 export const setVisibilityFilter = filter => {
   return {
     type: 'SET_VISIBILITY_FILTER',
