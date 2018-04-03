@@ -1,10 +1,13 @@
 package utils
 
 import (
-	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 )
@@ -20,28 +23,14 @@ func AwsErrorPrint(err error) {
 }
 
 func SlackSend(task string) {
-	name := "Go"
-
-	jsonStr := `{"username":"` + name + `","text":"/remind me to ` + task + ` in 3 hours"}`
-
-	req, err := http.NewRequest(
-		"POST",
-		"https://hooks.slack.com/services/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",
-		bytes.NewBuffer([]byte(jsonStr)),
-	)
-
-	if err != nil {
-		fmt.Print(err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Print(err)
-	}
-
-	fmt.Print(resp)
+	v := url.Values{}
+	v.Set("token", "xoxp-2323629234-47180913574-337205672418-ed453b4666c0cfec074452c669b69be6")
+	v.Add("time", strconv.FormatInt(time.Now().Unix()+600, 10))
+	v.Add("text", task)
+	fmt.Println(v.Encode())
+	url := "https://slack.com/api/reminders.add?" + v.Encode()
+	resp, _ := http.Get(url)
 	defer resp.Body.Close()
+	byteArray, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(byteArray)) // htmlをstringで取得
 }
