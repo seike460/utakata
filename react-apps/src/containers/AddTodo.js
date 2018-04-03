@@ -22,7 +22,7 @@ let AddTodo = ({ dispatch }) => {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           };
-          fetch("https://thuv9pflq4.execute-api.ap-northeast-1.amazonaws.com/dev/utakata/setItem", {method, headers, body})
+          fetch("", {method, headers, body})
           .then(response => {
             dispatch(addTodo(document.getElementById("taskVal").value.trim()))
             document.getElementById("taskVal").value = 
