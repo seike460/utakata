@@ -24,7 +24,7 @@ func AwsErrorPrint(err error) {
 
 func SlackSend(task string) {
 	v := url.Values{}
-	v.Set("token", "xoxp-2323629234-47180913574-337205672418-ed453b4666c0cfec074452c669b69be6")
+	v.Set("token", "-")
 	v.Add("time", strconv.FormatInt(time.Now().Unix()+600, 10))
 	v.Add("text", task)
 	fmt.Println(v.Encode())
