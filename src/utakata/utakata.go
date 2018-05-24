@@ -2,27 +2,30 @@ package main
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/faultline/faultline-go/faultline"
 	utils "github.com/seike460/utakata/src"
 )
 
+var notifications = []interface{}{
+	faultline.Slack{
+		Type:           "slack",
+		Endpoint:       os.Getenv("FAULTLINE_NOTIFY_SLACK_ENDPOINT"),
+		Channel:        os.Getenv("FAULTLINE_NOTIFY_SLACK_CHANNEL"),
+		Username:       "faultline-notify",
+		NotifyInterval: 5,
+		Threshold:      10,
+		Timezone:       "Asia/Tokyo",
+	},
+}
+
+var notifier = faultline.NewNotifier("faultline_go_project", os.Getenv("FAULTLINE_MASTERKEY"), os.Getenv("FAULTLINE_ENDPOINT"), notifications)
+
 func main() {
-	result := utils.GetIcalCalendar()
+	defer notifier.Close()
+	defer notifier.NotifyOnPanic()
 
+	result := utils.NoticeIcalCalendar()
 	fmt.Println(result)
-
-	//for _, item := range result.Items {
-	//	layout := "20060102T150405"
-	//	sendTime := strings.Replace(*item["dateTime"].S, "-", "", -1)
-	//	sendTime = strings.Replace(sendTime, ":", "", -1)
-	//	t, err := time.Parse(layout, sendTime)
-	//	if err == nil {
-	//		now := time.Now().UTC().Add(time.Duration(9) * time.Hour)
-	//		addTime := t.Add(time.Duration(5) * time.Minute)
-	//		minusTime := t.Add(-time.Duration(5) * time.Minute)
-	//		if now.Before(addTime) && now.After(minusTime) {
-	//			//utils.SlackSend(*item["name"].S, t.String())
-	//		}
-	//	}
-	//}
 }

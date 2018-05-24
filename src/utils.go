@@ -48,7 +48,7 @@ func SlackSend(task string, start string) {
 /**
  *
  */
-func GetIcalCalendar() io.ReadCloser {
+func NoticeIcalCalendar() io.ReadCloser {
 
 	icalUrl := os.Getenv("UTAKATA_ICAL_URLS")
 	icalUserName := os.Getenv("UTAKATA_ICAL_USERS")
@@ -95,8 +95,8 @@ func GetIcalCalendar() io.ReadCloser {
 			t, err := time.Parse(layout, dtstart.RawValue())
 			if err == nil {
 				now := time.Now().UTC().Add(time.Duration(9) * time.Hour)
-				addTime := t.Add(time.Duration(120) * time.Minute)
-				minusTime := t.Add(-time.Duration(120) * time.Minute)
+				addTime := t.Add(time.Duration(5) * time.Minute)
+				minusTime := t.Add(-time.Duration(5) * time.Minute)
 				if now.Before(addTime) && now.After(minusTime) {
 					SlackSend(summary.RawValue(), t.String())
 				}
