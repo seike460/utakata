@@ -1,0 +1,29 @@
+{
+  "name": "utakata",
+  "version": "1.0.0",
+  "description": "slack reminder",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "bash build.sh && npm install && ./node_modules/serverless/bin/serverless deploy -v",
+    "destroy": "sls remove",
+    "info": "sls info"
+  },
+  "dependencies": {
+    "serverless": "^1.27.3"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/seike460/utakata.git"
+  },
+  "keywords": [
+    "golang",
+    "slack"
+  ],
+  "author": "seike460",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/seike460/utakata/issues"
+  },
+  "homepage": "https://github.com/seike460/utakata#readme"
+}
