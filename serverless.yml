@@ -4,23 +4,19 @@ provider:
   runtime: go1.x
   stage: dev
   region: ap-northeast-1
-plugins:
-    - serverless-localstack
-custom:
-  localstack:
-    endpoint: localstack_endpoints.json
+  environment:
+    UTAKATA_ICAL_URLS: "https://seike460.hatenablog.com/ical.ics"
+    UTAKATA_ICAL_USERS: "hoge"
+    UTAKATA_ICAL_PASS: "fuga"
+    UTAKATA_SLACK_TOKEN: "XxxX-XxxxxxxxxX-XxxxxxxxxxX-XxxxxxxxxxxX-XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX"
+    UTAKATA_SLACK_CHANNEL: "@foo"
+#plugins:
+#    - serverless-localstack
+#custom:
+#  localstack:
+#    endpoint: localstack_endpoints.json
 functions:
-  getItem:
-    handler: handlers/getItem.handler
+  utakata:
+    handler: utakata.handle
     events:
-      - http:
-          path: utakata/getItem
-          method: get
-          cors: true
-  setItem:
-    handler: handlers/setItem.handler
-    events:
-      - http:
-          path: utakata/setItem
-          method: post
-          cors: true
+      - schedule: cron(0/5 * * * ? *)

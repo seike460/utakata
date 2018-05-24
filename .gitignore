@@ -1,7 +1,5 @@
-node_modules/*
-bin/*
 .serverless/*
-handlers/
+handlers/*
 # Binaries for programs and plugins
 *.exe
 *.dll
