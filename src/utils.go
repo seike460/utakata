@@ -2,35 +2,106 @@ package utils
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
-	"net/url"
 	"os"
-	"strconv"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
+	ical "github.com/lestrrat-go/ical"
+	"github.com/nlopes/slack"
 )
 
-func AwsErrorPrint(err error) {
-	if aerr, ok := err.(awserr.Error); ok {
-		fmt.Println(aerr.Error())
-	} else {
-		fmt.Println(err.Error())
+func SlackSend(task string, start string) {
+
+	token := os.Getenv("UTAKATA_SLACK_TOKEN")
+	channel := os.Getenv("UTAKATA_SLACK_CHANNEL")
+
+	if token == "" || channel == "" {
+		panic("必要な環境変数が設定されていません")
 	}
-	fmt.Println(os.Stderr)
-	os.Exit(1)
+
+	api := slack.New(token)
+	params := slack.PostMessageParameters{}
+	attachment := slack.Attachment{
+		Fields: []slack.AttachmentField{
+			slack.AttachmentField{
+				Title: "タスク",
+				Value: task,
+			},
+			slack.AttachmentField{
+				Title: "時間",
+				Value: start,
+			},
+		},
+	}
+	params.Attachments = []slack.Attachment{attachment}
+	params.Username = "Utakata"
+	params.IconEmoji = ":alarm_clock:"
+	channelID, timestamp, err := api.PostMessage(channel, "", params)
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return
+	}
+	fmt.Printf("Message successfully sent to channel %s at %s", channelID, timestamp)
 }
 
-func SlackSend(task string) {
-	v := url.Values{}
-	v.Set("token", "-")
-	v.Add("time", strconv.FormatInt(time.Now().Unix()+600, 10))
-	v.Add("text", task)
-	fmt.Println(v.Encode())
-	url := "https://slack.com/api/reminders.add?" + v.Encode()
-	resp, _ := http.Get(url)
+/**
+ *
+ */
+func GetIcalCalendar() io.ReadCloser {
+
+	icalUrl := os.Getenv("UTAKATA_ICAL_URLS")
+	icalUserName := os.Getenv("UTAKATA_ICAL_USERS")
+	icalPass := os.Getenv("UTAKATA_ICAL_PASS")
+
+	if icalUrl == "" || icalUserName == "" || icalPass == "" {
+		panic("必要な環境変数が設定されていません")
+	}
+
+	req, _ := http.NewRequest("GET", icalUrl, nil)
+	req.Header.Set("Authorization", "Bearer access-token")
+	req.SetBasicAuth(icalUserName, icalPass)
+
+	client := new(http.Client)
+	resp, err := client.Do(req)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	defer resp.Body.Close()
-	byteArray, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(byteArray)) // htmlをstringで取得
+	p := ical.NewParser()
+	c, err := p.Parse(resp.Body)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// snip
+	for e := range c.Entries() {
+		ev, ok := e.(*ical.Event)
+		if !ok {
+			continue
+		}
+		summary, ret := ev.GetProperty("summary")
+		if ret == true {
+			if len(summary.Parameters()["VALUE"]) > 0 {
+				fmt.Println(summary.Parameters())
+			}
+		}
+		dtstart, ret := ev.GetProperty("dtstart")
+		if len(dtstart.RawValue()) > 10 {
+			layout := "20060102T150405"
+			t, err := time.Parse(layout, dtstart.RawValue())
+			if err == nil {
+				now := time.Now().UTC().Add(time.Duration(9) * time.Hour)
+				addTime := t.Add(time.Duration(120) * time.Minute)
+				minusTime := t.Add(-time.Duration(120) * time.Minute)
+				if now.Before(addTime) && now.After(minusTime) {
+					SlackSend(summary.RawValue(), t.String())
+				}
+			}
+		}
+	}
+	return resp.Body
 }
