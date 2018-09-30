@@ -25,7 +25,6 @@ var notifier = faultline.NewNotifier("faultline_go_project", os.Getenv("FAULTLIN
 func main() {
 	defer notifier.Close()
 	defer notifier.NotifyOnPanic()
-
 	result := utils.NoticeIcalCalendar()
 	fmt.Println(result)
 }

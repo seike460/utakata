@@ -11,11 +11,11 @@ import (
 	"github.com/nlopes/slack"
 )
 
+// SlackSend send Message to Slack
 func SlackSend(task string, start string) {
 
 	token := os.Getenv("UTAKATA_SLACK_TOKEN")
 	channel := os.Getenv("UTAKATA_SLACK_CHANNEL")
-
 	if token == "" || channel == "" {
 		panic("必要な環境変数が設定されていません")
 	}
@@ -25,7 +25,7 @@ func SlackSend(task string, start string) {
 	attachment := slack.Attachment{
 		Fields: []slack.AttachmentField{
 			slack.AttachmentField{
-				Title: "タスク",
+				Title: "予定",
 				Value: task,
 			},
 			slack.AttachmentField{
@@ -36,29 +36,26 @@ func SlackSend(task string, start string) {
 	}
 	params.Attachments = []slack.Attachment{attachment}
 	params.Username = "Utakata"
-	params.IconEmoji = ":alarm_clock:"
-	channelID, timestamp, err := api.PostMessage(channel, "", params)
+	params.IconEmoji = ":cloud:"
+	_, _, err := api.PostMessage(channel, "", params)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		return
 	}
-	fmt.Printf("Message successfully sent to channel %s at %s", channelID, timestamp)
 }
 
-/**
- *
- */
-func NoticeIcalCalendar() io.ReadCloser {
+// getIcalData get icals data
+func getIcalData() io.ReadCloser {
 
-	icalUrl := os.Getenv("UTAKATA_ICAL_URLS")
+	icalURL := os.Getenv("UTAKATA_ICAL_URLS")
 	icalUserName := os.Getenv("UTAKATA_ICAL_USERS")
 	icalPass := os.Getenv("UTAKATA_ICAL_PASS")
 
-	if icalUrl == "" || icalUserName == "" || icalPass == "" {
+	if icalURL == "" || icalUserName == "" || icalPass == "" {
 		panic("必要な環境変数が設定されていません")
 	}
 
-	req, _ := http.NewRequest("GET", icalUrl, nil)
+	req, _ := http.NewRequest("GET", icalURL, nil)
 	req.Header.Set("Authorization", "Bearer access-token")
 	req.SetBasicAuth(icalUserName, icalPass)
 
@@ -68,16 +65,50 @@ func NoticeIcalCalendar() io.ReadCloser {
 	if err != nil {
 		fmt.Println(err)
 	}
+	return resp.Body
+}
 
-	defer resp.Body.Close()
+// NoticeIcalCalendar entrypoint
+func NoticeIcalCalendar() error {
+
+	// 仮ループ用
+	values := []int{0}
+
+	// goroutine用channel
+	icalChan := make(chan io.ReadCloser)
+
+	var icalBody io.ReadCloser
+
+	for range values {
+		go func(icalChan chan io.ReadCloser) {
+			icalChan <- getIcalData()
+		}(icalChan)
+		if icalBody != nil {
+			err := checkAndSlackSend(icalBody)
+			if err != nil {
+				return err
+			}
+		}
+		icalBody = <-icalChan
+	}
+	// 最後の一回分
+	if icalBody != nil {
+		err := checkAndSlackSend(icalBody)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkAndSlackSend(icalBody io.ReadCloser) error {
 	p := ical.NewParser()
-	c, err := p.Parse(resp.Body)
+	c, err := p.Parse(icalBody)
 
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
-	// snip
 	for e := range c.Entries() {
 		ev, ok := e.(*ical.Event)
 		if !ok {
@@ -98,10 +129,10 @@ func NoticeIcalCalendar() io.ReadCloser {
 				addTime := t.Add(time.Duration(5) * time.Minute)
 				minusTime := t.Add(-time.Duration(5) * time.Minute)
 				if now.Before(addTime) && now.After(minusTime) {
-					SlackSend(summary.RawValue(), t.String())
+					go SlackSend(summary.RawValue(), t.String())
 				}
 			}
 		}
 	}
-	return resp.Body
+	return nil
 }
