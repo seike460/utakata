@@ -71,7 +71,8 @@ func getIcalData() io.ReadCloser {
 // NoticeIcalCalendar entrypoint
 func NoticeIcalCalendar() error {
 
-	values := []int{0, 1}
+	// 仮ループ用
+	values := []int{0}
 
 	// goroutine用channel
 	icalChan := make(chan io.ReadCloser)
