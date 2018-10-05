@@ -9,7 +9,10 @@
     "info": "sls info"
   },
   "dependencies": {
-    "serverless": "^1.27.3"
+    "aws-sdk": "^2.327.0",
+    "aws-xray-sdk": "^2.0.0",
+    "serverless": "^1.27.3",
+    "serverless-plugin-tracing": "^2.0.0"
   },
   "devDependencies": {},
   "repository": {
