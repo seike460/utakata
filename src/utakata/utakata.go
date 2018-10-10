@@ -26,5 +26,9 @@ func main() {
 	defer notifier.Close()
 	defer notifier.NotifyOnPanic()
 	result := utils.NoticeIcalCalendar()
-	fmt.Println(result)
+	if result == nil {
+		fmt.Println("done")
+	} else {
+		fmt.Println(result)
+	}
 }
