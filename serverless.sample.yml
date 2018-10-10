@@ -31,5 +31,6 @@ provider:
 functions:
   utakata:
     handler: handlers/utakata.handler
+    reservedConcurrency: 1
     events:
       - schedule: cron(*/5 * * * ? *)

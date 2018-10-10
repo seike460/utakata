@@ -4,7 +4,7 @@
   "description": "slack reminder",
   "main": "index.js",
   "scripts": {
-    "deploy": "bash build.sh && npm install && ./node_modules/serverless/bin/serverless deploy -v",
+    "deploy": "bash build.sh && yarn install && ./node_modules/serverless/bin/serverless deploy -v",
     "destroy": "sls remove",
     "info": "sls info"
   },
