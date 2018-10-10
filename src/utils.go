@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	ical "github.com/lestrrat-go/ical"
@@ -19,7 +20,6 @@ func SlackSend(task string, start string) {
 	if token == "" || channel == "" {
 		panic("必要な環境変数が設定されていません")
 	}
-
 	api := slack.New(token)
 	params := slack.PostMessageParameters{}
 	attachment := slack.Attachment{
@@ -35,18 +35,13 @@ func SlackSend(task string, start string) {
 		},
 	}
 	params.Attachments = []slack.Attachment{attachment}
-	params.Username = "Utakata"
+	params.Username = "Utakata (goroutine)"
 	params.IconEmoji = ":cloud:"
-	_, _, err := api.PostMessage(channel, "", params)
-	if err != nil {
-		fmt.Printf("%s\n", err)
-		return
-	}
+	api.PostMessage(channel, "", params)
 }
 
 // getIcalData get icals data
-func getIcalData() io.ReadCloser {
-
+func getIcalData(ical int) io.ReadCloser {
 	icalURL := os.Getenv("UTAKATA_ICAL_URLS")
 	icalUserName := os.Getenv("UTAKATA_ICAL_USERS")
 	icalPass := os.Getenv("UTAKATA_ICAL_PASS")
@@ -64,40 +59,41 @@ func getIcalData() io.ReadCloser {
 
 	if err != nil {
 		fmt.Println(err)
+		return nil
 	}
 	return resp.Body
 }
 
 // NoticeIcalCalendar entrypoint
 func NoticeIcalCalendar() error {
-
 	// 仮ループ用
-	values := []int{0}
+	icals := []int{0}
+
+	wg := &sync.WaitGroup{}
 
 	// goroutine用channel
 	icalChan := make(chan io.ReadCloser)
 
 	var icalBody io.ReadCloser
 
-	for range values {
+	for ical := range icals {
 		go func(icalChan chan io.ReadCloser) {
-			icalChan <- getIcalData()
+			icalChan <- getIcalData(ical)
 		}(icalChan)
 		if icalBody != nil {
-			err := checkAndSlackSend(icalBody)
-			if err != nil {
-				return err
-			}
+			wg.Add(1)
+			go func() {
+				checkAndSlackSend(icalBody)
+				wg.Done()
+			}()
 		}
 		icalBody = <-icalChan
 	}
 	// 最後の一回分
 	if icalBody != nil {
-		err := checkAndSlackSend(icalBody)
-		if err != nil {
-			return err
-		}
+		checkAndSlackSend(icalBody)
 	}
+	wg.Wait()
 	return nil
 }
 
@@ -129,7 +125,8 @@ func checkAndSlackSend(icalBody io.ReadCloser) error {
 				addTime := t.Add(time.Duration(5) * time.Minute)
 				minusTime := t.Add(-time.Duration(5) * time.Minute)
 				if now.Before(addTime) && now.After(minusTime) {
-					go SlackSend(summary.RawValue(), t.String())
+					SlackSend(summary.RawValue(), t.String())
+					return nil
 				}
 			}
 		}

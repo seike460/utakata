@@ -1,0 +1,35 @@
+service: utakata
+plugins:
+  - serverless-plugin-tracing
+provider:
+  name: aws
+  runtime: go1.x
+  stage: dev
+  region: ap-northeast-1
+  tracing: true # X-Ray
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - xray:PutTraceSegments # X-Ray
+        - xray:PutTelemetryRecords # X-Ray
+      Resource: "*"
+  environment:
+    UTAKATA_ICAL_URLS: "https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    UTAKATA_ICAL_USERS: "seike460"
+    UTAKATA_ICAL_PASS: "password"
+    UTAKATA_SLACK_TOKEN: "XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX"
+    UTAKATA_SLACK_CHANNEL: "@seike460"
+    FAULTLINE_NOTIFY_SLACK_ENDPOINT: 'https://hooks.slack.com/services/XxxxxxxxX/Xxxxxxxxxxxxxx/XxxxxxxxxxxxxxxxxxX'
+    FAULTLINE_NOTIFY_SLACK_CHANNEL: '#seike460'
+    FAULTLINE_MASTERKEY: 'XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX'
+    FAULTLINE_ENDPOINT: 'https://XxxxxxxxxX.execute-api.us-east-1.amazonaws.com/dev'
+# plugins:
+#    - serverless-localstack
+# custom:
+#  localstack:
+#    endpoint: localstack_endpoints.json
+functions:
+  utakata:
+    handler: handlers/utakata.handler
+    events:
+      - schedule: cron(*/5 * * * ? *)
