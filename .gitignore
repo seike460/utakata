@@ -1,5 +1,7 @@
 .serverless/*
 handlers/*
+serverless.yml
+serverless.seike.yml
 # Binaries for programs and plugins
 *.exe
 *.dll
@@ -14,3 +16,5 @@ handlers/*
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
+
+node_modules/*

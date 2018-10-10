@@ -14,15 +14,15 @@ provider:
         - xray:PutTelemetryRecords # X-Ray
       Resource: "*"
   environment:
-    UTAKATA_ICAL_URLS: "https://aipo.fusic.co.jp/ical/calendar.ics"
-    UTAKATA_ICAL_USERS: "seike"
-    UTAKATA_ICAL_PASS: "!3D7%8f!"
-    UTAKATA_SLACK_TOKEN: "xoxp-2323629234-47180913574-339654235953-7c41bc14d76af18f2c4ca5e01e13be86"
+    UTAKATA_ICAL_URLS: "https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    UTAKATA_ICAL_USERS: "seike460"
+    UTAKATA_ICAL_PASS: "password"
+    UTAKATA_SLACK_TOKEN: "XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX"
     UTAKATA_SLACK_CHANNEL: "@seike460"
-    FAULTLINE_NOTIFY_SLACK_ENDPOINT: 'https://hooks.slack.com/services/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'
-    FAULTLINE_NOTIFY_SLACK_CHANNEL: '#seike460_dev'
-    FAULTLINE_MASTERKEY: 'Jc8ohAp26FtPYu99PZ4EdCTGz7rYv846'
-    FAULTLINE_ENDPOINT: 'https://x2tivzr8d5.execute-api.us-east-1.amazonaws.com/dev'
+    FAULTLINE_NOTIFY_SLACK_ENDPOINT: 'https://hooks.slack.com/services/XxxxxxxxX/Xxxxxxxxxxxxxx/XxxxxxxxxxxxxxxxxxX'
+    FAULTLINE_NOTIFY_SLACK_CHANNEL: '#seike460'
+    FAULTLINE_MASTERKEY: 'XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX'
+    FAULTLINE_ENDPOINT: 'https://XxxxxxxxxX.execute-api.us-east-1.amazonaws.com/dev'
 # plugins:
 #    - serverless-localstack
 # custom:
