@@ -16,5 +16,6 @@ serverless.seike.yml
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
+vendor/*
 
 node_modules/*
