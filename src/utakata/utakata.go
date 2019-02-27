@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/faultline/faultline-go/faultline"
-	utils "github.com/seike460/utakata/src"
+	"github.com/seike460/utakata/src/utils"
 )
 
 var notifications = []interface{}{

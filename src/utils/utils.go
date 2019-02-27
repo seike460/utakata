@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -42,9 +43,9 @@ func SlackSend(task string, start string) {
 
 // getIcalData get icals data
 func getIcalData(ical int) io.ReadCloser {
-	icalURL := os.Getenv("UTAKATA_ICAL_URLS")
-	icalUserName := os.Getenv("UTAKATA_ICAL_USERS")
-	icalPass := os.Getenv("UTAKATA_ICAL_PASS")
+	icalURL := os.Getenv("UTAKATA_ICAL_URLS_" + strconv.Itoa(ical))
+	icalUserName := os.Getenv("UTAKATA_ICAL_USERS_" + strconv.Itoa(ical))
+	icalPass := os.Getenv("UTAKATA_ICAL_PASS_" + strconv.Itoa(ical))
 
 	if icalURL == "" || icalUserName == "" || icalPass == "" {
 		panic("必要な環境変数が設定されていません")
@@ -66,19 +67,33 @@ func getIcalData(ical int) io.ReadCloser {
 
 // NoticeIcalCalendar entrypoint
 func NoticeIcalCalendar() error {
-	// 仮ループ用
-	icals := []int{0}
 
 	wg := &sync.WaitGroup{}
+
+	if os.Getenv("UTAKATA_ICAL_NUM") == "" {
+		return nil
+	}
+
+	calNum, err := strconv.Atoi(os.Getenv("UTAKATA_ICAL_NUM"))
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
 	// goroutine用channel
 	icalChan := make(chan io.ReadCloser)
 
 	var icalBody io.ReadCloser
 
-	for ical := range icals {
+	x := 1
+	for {
+
+		if x > calNum {
+			break
+		}
 		go func(icalChan chan io.ReadCloser) {
-			icalChan <- getIcalData(ical)
+			icalChan <- getIcalData(x)
 		}(icalChan)
 		if icalBody != nil {
 			wg.Add(1)
@@ -87,6 +102,7 @@ func NoticeIcalCalendar() error {
 				wg.Done()
 			}()
 		}
+		x = x + 1
 		icalBody = <-icalChan
 	}
 	// 最後の一回分
