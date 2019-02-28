@@ -1,4 +1,4 @@
-package main
+package utakata
 
 import (
 	"testing"
@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMain(t *testing.T) {
+func TestNoticeIcalCalendar(t *testing.T) {
+	NoticeIcalCalendar()
 	assert.Nil(t, nil)
 }
