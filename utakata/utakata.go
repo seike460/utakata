@@ -12,6 +12,7 @@ import (
 
 	"github.com/lestrrat-go/ical"
 	"github.com/nlopes/slack"
+	"github.com/spf13/viper"
 )
 
 // SlackType Daliy Hour Minute
@@ -20,8 +21,8 @@ var SlackType string
 // SlackSend send Message to Slack
 func SlackSend(task string, start string) error {
 
-	token := os.Getenv("UTAKATA_SLACK_TOKEN")
-	channel := os.Getenv("UTAKATA_SLACK_CHANNEL")
+	token := getConfigValue("UTAKATA_SLACK_TOKEN")
+	channel := getConfigValue("UTAKATA_SLACK_CHANNEL")
 	if token == "" || channel == "" {
 		return errors.New("plz set UTAKATA_SLACK_TOKEN & UTAKATA_SLACK_CHANNEL")
 	}
@@ -51,9 +52,9 @@ func SlackSend(task string, start string) error {
 
 // getIcalData get icals data
 func getIcalData(ical int) io.ReadCloser {
-	icalURL := os.Getenv("UTAKATA_ICAL_URLS_" + strconv.Itoa(ical))
-	icalUserName := os.Getenv("UTAKATA_ICAL_USERS_" + strconv.Itoa(ical))
-	icalPass := os.Getenv("UTAKATA_ICAL_PASS_" + strconv.Itoa(ical))
+	icalURL := getConfigValue("UTAKATA_ICAL_URLS_" + strconv.Itoa(ical))
+	icalUserName := getConfigValue("UTAKATA_ICAL_USERS_" + strconv.Itoa(ical))
+	icalPass := getConfigValue("UTAKATA_ICAL_PASS_" + strconv.Itoa(ical))
 
 	if icalURL == "" {
 		log.Fatal("plz set UTAKATA_ICAL_URLS_" + strconv.Itoa(ical))
@@ -85,13 +86,17 @@ func getIcalData(ical int) io.ReadCloser {
 // NoticeIcalCalendar entrypoint
 func NoticeIcalCalendar() error {
 
-	if os.Getenv("UTAKATA_ICAL_NUM") == "" {
+	if getConfigValue("UTAKATA_ICAL_NUM") == "" {
 		return nil
 	}
 
-	calNum, err := strconv.Atoi(os.Getenv("UTAKATA_ICAL_NUM"))
+	calNum, err := strconv.Atoi(getConfigValue("UTAKATA_ICAL_NUM"))
 	if err != nil {
 		return err
+	}
+
+	if len(os.Args) > 1 && os.Args[1] == "Daily" {
+		SlackType = "Daily"
 	}
 
 	wg := &sync.WaitGroup{}
@@ -152,31 +157,45 @@ func checkAndSlackSend(iCalBody io.ReadCloser) error {
 		}
 		dtstart, ret := ev.GetProperty("dtstart")
 		// Non Date
-		if len(dtstart.RawValue()) > 10 {
-			layout := "20060102T150405"
-			t, err := time.Parse(layout, dtstart.RawValue())
-			if err != nil {
-				return err
+
+		layout := "20060102T150405"
+		if len(dtstart.RawValue()) == 8 {
+			if SlackType != "Daily" {
+				continue
 			}
-			// @TODO setting from config TimeZone
-			now := time.Now().UTC().Add(time.Duration(9) * time.Hour)
-			if SlackType == "Daily" {
-				layout = "20060102"
-				if t.Format(layout) == now.Format(layout) {
-					err = SlackSend(summary.RawValue(), t.String())
-				}
-			} else {
-				// @TODO setting from config Minute
-				addTime := t.Add(time.Duration(5) * time.Minute)
-				minusTime := t.Add(-time.Duration(5) * time.Minute)
-				if now.Before(addTime) && now.After(minusTime) {
-					err = SlackSend(summary.RawValue(), t.String())
-				}
+			layout = "20060102"
+		}
+		t, err := time.Parse(layout, dtstart.RawValue())
+		if err != nil {
+			return err
+		}
+		// @TODO setting from config TimeZone
+		now := time.Now().UTC().Add(time.Duration(9) * time.Hour)
+		if SlackType == "Daily" {
+			if t.Format(layout) == now.Format(layout) {
+				err = SlackSend(summary.RawValue(), t.String())
 			}
-			if err != nil {
-				return err
+		} else {
+			// @TODO setting from config Minute
+			addTime := t.Add(time.Duration(5) * time.Minute)
+			minusTime := t.Add(-time.Duration(5) * time.Minute)
+			if now.Before(addTime) && now.After(minusTime) {
+				err = SlackSend(summary.RawValue(), t.String())
 			}
+		}
+		if err != nil {
+			return err
 		}
 	}
 	return nil
+}
+
+func getConfigValue(configString string) string {
+	// serverless for Production
+	val := os.Getenv(configString)
+	if val != "" {
+		return val
+	}
+	// local for dev
+	return viper.GetString(configString)
 }
