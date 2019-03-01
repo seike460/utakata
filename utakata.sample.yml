@@ -1,0 +1,11 @@
+UTAKATA_ICAL_NUM: "1"
+UTAKATA_ICAL_URLS_1: "https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+UTAKATA_ICAL_USERS_1: "seike460"
+UTAKATA_ICAL_PASS_1: "password"
+UTAKATA_SLACK_TOKEN: "XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX"
+UTAKATA_SLACK_CHANNEL: "@seike460"
+FAULTLINE_NOTIFY_SLACK_ENDPOINT: 'https://hooks.slack.com/services/XxxxxxxxX/Xxxxxxxxxxxxxx/XxxxxxxxxxxxxxxxxxX'
+FAULTLINE_NOTIFY_SLACK_CHANNEL: '#seike460'
+FAULTLINE_PROJECT_NAME: 'utakata'
+FAULTLINE_MASTERKEY: 'XxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxX'
+FAULTLINE_ENDPOINT: 'https://XxxxxxxxxX.execute-api.us-east-1.amazonaws.com/dev'
