@@ -21,8 +21,8 @@ var SlackType string
 // SlackSend send Message to Slack
 func SlackSend(task string, start string) error {
 
-	token := getConfigValue("UTAKATA_SLACK_TOKEN")
-	channel := getConfigValue("UTAKATA_SLACK_CHANNEL")
+	token := GetConfigValue("UTAKATA_SLACK_TOKEN")
+	channel := GetConfigValue("UTAKATA_SLACK_CHANNEL")
 	if token == "" || channel == "" {
 		return errors.New("plz set UTAKATA_SLACK_TOKEN & UTAKATA_SLACK_CHANNEL")
 	}
@@ -52,9 +52,9 @@ func SlackSend(task string, start string) error {
 
 // getIcalData get icals data
 func getIcalData(ical int) io.ReadCloser {
-	icalURL := getConfigValue("UTAKATA_ICAL_URLS_" + strconv.Itoa(ical))
-	icalUserName := getConfigValue("UTAKATA_ICAL_USERS_" + strconv.Itoa(ical))
-	icalPass := getConfigValue("UTAKATA_ICAL_PASS_" + strconv.Itoa(ical))
+	icalURL := GetConfigValue("UTAKATA_ICAL_URLS_" + strconv.Itoa(ical))
+	icalUserName := GetConfigValue("UTAKATA_ICAL_USERS_" + strconv.Itoa(ical))
+	icalPass := GetConfigValue("UTAKATA_ICAL_PASS_" + strconv.Itoa(ical))
 
 	if icalURL == "" {
 		log.Fatal("plz set UTAKATA_ICAL_URLS_" + strconv.Itoa(ical))
@@ -86,11 +86,11 @@ func getIcalData(ical int) io.ReadCloser {
 // NoticeIcalCalendar entrypoint
 func NoticeIcalCalendar() error {
 
-	if getConfigValue("UTAKATA_ICAL_NUM") == "" {
+	if GetConfigValue("UTAKATA_ICAL_NUM") == "" {
 		return nil
 	}
 
-	calNum, err := strconv.Atoi(getConfigValue("UTAKATA_ICAL_NUM"))
+	calNum, err := strconv.Atoi(GetConfigValue("UTAKATA_ICAL_NUM"))
 	if err != nil {
 		return err
 	}
@@ -190,7 +190,8 @@ func checkAndSlackSend(iCalBody io.ReadCloser) error {
 	return nil
 }
 
-func getConfigValue(configString string) string {
+// GetConfigValue get Env Or viper
+func GetConfigValue(configString string) string {
 	// serverless for Production
 	val := os.Getenv(configString)
 	if val != "" {

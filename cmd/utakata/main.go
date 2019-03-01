@@ -12,8 +12,8 @@ import (
 var notifications = []interface{}{
 	faultline.Slack{
 		Type:           "slack",
-		Endpoint:       viper.GetString("FAULTLINE_NOTIFY_SLACK_ENDPOINT"),
-		Channel:        viper.GetString("FAULTLINE_NOTIFY_SLACK_CHANNEL"),
+		Endpoint:       utakata.GetConfigValue("FAULTLINE_NOTIFY_SLACK_ENDPOINT"),
+		Channel:        utakata.GetConfigValue("FAULTLINE_NOTIFY_SLACK_CHANNEL"),
 		Username:       "faultline-notify",
 		NotifyInterval: 5,
 		Threshold:      10,
@@ -22,9 +22,9 @@ var notifications = []interface{}{
 }
 
 var notifier = faultline.NewNotifier(
-	viper.GetString("FAULTLINE_PROJECT_NAME"),
-	viper.GetString("FAULTLINE_MASTERKEY"),
-	viper.GetString("FAULTLINE_ENDPOINT"),
+	utakata.GetConfigValue("FAULTLINE_PROJECT_NAME"),
+	utakata.GetConfigValue("FAULTLINE_MASTERKEY"),
+	utakata.GetConfigValue("FAULTLINE_ENDPOINT"),
 	notifications,
 )
 
